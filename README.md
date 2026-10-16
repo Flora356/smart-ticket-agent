@@ -15,11 +15,32 @@
 ## 快速开始
 
 ```powershell
-cd E:\Documents\agent_pro
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -U pip
-python -m pip install -e ".[dev]"
+cd D:\agent_pro
+
+# 后端依赖
+python -m pip install pydantic fastapi uvicorn pytest
+
+# 前端依赖（项目使用 pnpm，store 已指向 D:\pnpm-store）
+cd frontend
+pnpm install --config.node-linker=hoisted
+cd ..
+
+# 一键启动后端 8000 + 前端 5173
+powershell -ExecutionPolicy Bypass -File .\start.ps1
+```
+
+启动后访问：
+
+- App 工作台：http://127.0.0.1:5173/
+- 后端接口文档：http://127.0.0.1:8000/docs
+- 独立演示页：http://127.0.0.1:5173/standalone.html
+
+> 注意：本项目必须放在 NTFS 磁盘（如 D 盘）。不要放在 FAT32 的盘符上，
+> 否则 pnpm 无法创建符号链接，前端依赖会安装失败。
+
+运行测试：
+
+```powershell
 python -m pytest
 ```
 

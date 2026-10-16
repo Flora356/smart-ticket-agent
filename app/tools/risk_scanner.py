@@ -18,9 +18,23 @@ class RiskScanResult:
 
 class RiskScanner:
     RULES = {
-        "pii_phone": (["手机号", "手机号码", "身份证", "验证码"], "high:pii"),
+        "pii_phone": (["手机号", "手机号码", "身份证"], "high:pii"),
         "credential_request": (
-            ["提供密码", "发送验证码", "告诉我验证码"],
+            [
+                "提供密码",
+                "发送验证码",
+                "告诉我验证码",
+                "验证码告诉我",
+                "把验证码",
+                "要验证码",
+                "验证码发",
+                "索要验证码",
+                "密码告诉我",
+                "把密码",
+                "要密码",
+                "发一下验证码",
+                "给我验证码",
+            ],
             "critical:credential",
         ),
         "unauthorized_commitment": (
@@ -30,6 +44,25 @@ class RiskScanner:
         "prompt_injection": (
             ["忽略之前的指令", "ignore previous", "system prompt", "泄露提示词"],
             "critical:prompt_injection",
+        ),
+        "safety_hazard": (
+            [
+                "漏电",
+                "触电",
+                "麻手",
+                "发烫",
+                "过热",
+                "烧焦",
+                "焦味",
+                "冒烟",
+                "起火",
+                "自燃",
+                "电源线破损",
+                "电线破损",
+                "闻到糊味",
+                "烫手",
+            ],
+            "critical:safety_hazard",
         ),
         "abuse": (["辱骂", "投诉媒体", "曝光"], "medium:complaint_escalation"),
     }

@@ -7,8 +7,9 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 [![Pydantic](https://img.shields.io/badge/Pydantic-2-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
-[![Tests](https://img.shields.io/badge/tests-28%20passed-brightgreen)](#质量验证)
+[![Tests](https://img.shields.io/badge/tests-56%20passed-brightgreen)](#质量验证)
 [![Benchmark](https://img.shields.io/badge/benchmark-9%2F9-brightgreen)](#质量验证)
+[![Knowledge Base](https://img.shields.io/badge/knowledge%20base-34%20docs-blue)](#质量验证)
 
 ---
 
@@ -109,9 +110,10 @@ docs/              # 架构说明、面试讲法、简历要点
 
 | 项目 | 结果 |
 |---|---|
-| pytest 测试 | **28 passed**（9 个测试文件，覆盖 unit / integration / e2e / security / regression） |
+| pytest 测试 | **56 passed**（10 个测试文件，覆盖 unit / integration / e2e / security / regression / quality） |
 | Benchmark 用例 | **9 / 9 通过**（L1 / L2 / L3 各 3 条） |
 | Benchmark 断言 | **36 / 36 通过** |
+| 知识库条目 | **34 条**，探测命中率 **90.2%**（41 条真实问法） |
 | 前端构建 | TypeScript 类型检查 + Vite 生产构建通过 |
 
 复现方式见下方「快速开始」。

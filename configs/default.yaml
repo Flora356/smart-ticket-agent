@@ -1,0 +1,16 @@
+app:
+  database_path: ticket_agent.db
+  max_retries: 2
+  confidence_threshold: 0.55
+  auto_reply_enabled: true
+
+provider:
+  name: rule_based
+  model: local-rule-engine
+  base_url: ""
+  timeout_seconds: 30
+
+benchmark:
+  default_dataset: benchmark/datasets/tickets_l1_l3.jsonl
+  pass_score: 0.75
+  judge: rule_based

@@ -1,0 +1,35 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+reports/*.html
+reports/*.json
+ticket_agent.db
+ticket_agent.db-*
+.env
+
+# frontend
+node_modules/
+frontend/dist/
+frontend/node_modules/
+.vite/
+
+# databases / local stores
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+.pnpm-store/
+
+# editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
+npm-debug.log*

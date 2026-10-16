@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>智能工单 Agent 工作台 - 演示</title>
+    <style>
+      :root {
+        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        color: #17212b;
+        background: #eef0f3;
+        --line: #dfe3e8;
+        --navy: #162b46;
+        --muted: #6b7785;
+        --faint: #9aa5b1;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-width: 1180px; min-height: 100vh; background: #eef0f3; }
+      button, textarea { font: inherit; }
+      button { cursor: pointer; }
+      .topbar {
+        height: 58px; padding: 0 18px; background: var(--navy); color: #fff;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .brand, .top-status { display: flex; align-items: center; }
+      .brand { gap: 11px; }
+      .mark {
+        width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center;
+        background: #24476d; color: #d9ecff; font-size: 17px;
+      }
+      .brand strong { display: block; font-size: 14px; }
+      .brand small {
+        display: block; margin-top: 1px; color: #9db0c7; font-size: 10px;
+        letter-spacing: .12em; text-transform: uppercase;
+      }
+      .top-status { gap: 9px; color: #c6d2e0; font-size: 12px; }
+      .dot {
+        width: 7px; height: 7px; border-radius: 50%; background: #35d6a0;
+        box-shadow: 0 0 0 3px rgba(53,214,160,.16);
+      }
+      .sep { width: 1px; height: 15px; background: rgba(255,255,255,.16); }
+      .workspace {
+        min-height: calc(100vh - 58px); display: grid;
+        grid-template-columns: 326px minmax(500px, 1fr) 376px;
+        gap: 1px; background: var(--line);
+      }
+      .panel { min-height: 0; background: #fff; display: flex; flex-direction: column; }
+      .heading {
+        min-height: 62px; padding: 13px 16px 11px; border-bottom: 1px solid var(--line);
+        display: flex; align-items: flex-start; justify-content: space-between;
+      }
+      .heading.compact { min-height: 58px; align-items: center; }
+      .eyebrow {
+        display: block; margin-bottom: 3px; color: var(--faint); font-size: 9px;
+        font-weight: 700; letter-spacing: .15em;
+      }
+      h1, h2 { margin: 0; font-size: 15px; line-height: 1.25; }
+      .count {
+        min-width: 24px; height: 22px; padding: 0 7px; border-radius: 6px;
+        display: grid; place-items: center; background: #eaf1fb; color: #274c77;
+        font-size: 11px; font-weight: 700;
+      }
+      .composer { padding: 13px 14px; border-bottom: 1px solid var(--line); background: #f7f8fa; }
+      textarea {
+        width: 100%; min-height: 74px; resize: vertical; padding: 10px 11px;
+        border: 1px solid #d6dce3; border-radius: 8px; outline: none;
+        color: #17212b; font-size: 12.5px; line-height: 1.55;
+      }
+      textarea:focus { border-color: #6788ad; box-shadow: 0 0 0 3px rgba(77,115,157,.1); }
+      .composer-foot {
+        margin-top: 8px; display: flex; align-items: center; justify-content: space-between;
+        color: #9aa5b1; font-size: 10px;
+      }
+      .btn {
+        height: 31px; padding: 0 11px; border-radius: 7px; border: 1px solid #23466c;
+        background: #1f3b5c; color: #fff; font-size: 11.5px; font-weight: 600;
+      }
+      .btn:hover { background: #274b71; }
+      .btn.light { border-color: #d8dee5; background: #fff; color: #41505f; }
+      .btn.light:hover { background: #f5f7f9; }
+      .queue { overflow: auto; padding: 8px; }
+      .ticket {
+        width: 100%; padding: 11px 10px; border: 1px solid transparent;
+        border-bottom-color: #eef0f3; border-radius: 7px; background: transparent;
+        text-align: left; display: flex; flex-direction: column; gap: 6px;
+      }
+      .ticket:hover { background: #f7f9fb; }
+      .ticket.active {
+        border-color: #c9d9ea; background: #f0f5fa;
+        box-shadow: inset 3px 0 0 #3f6f9f;
+      }
+      .ticket-top, .ticket-bottom { display: flex; align-items: center; justify-content: space-between; }
+      .number { color: #627183; font-family: Consolas, monospace; font-size: 10.5px; font-weight: 700; }
+      .ticket-title {
+        font-size: 12.5px; line-height: 1.45; font-weight: 560; color: #17212b;
+        overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      }
+      .ticket-bottom { justify-content: flex-start; gap: 8px; color: var(--faint); font-size: 10px; }
+      .ticket-bottom span:last-child { margin-left: auto; }
+      .status {
+        height: 19px; padding: 0 6px; border-radius: 5px; display: inline-flex;
+        align-items: center; font-size: 9.5px; font-weight: 700;
+      }
+      .active-s { background: #eaf1fb; color: #315d87; }
+      .closed-s { background: #e3f3f1; color: #0f766e; }
+      .human-s { background: #fff4e5; color: #b45309; }
+      .chat {
+        flex: 1; padding: 22px 28px; overflow: auto;
+        background: radial-gradient(circle at 80% 8%, rgba(24,57,91,.035), transparent 34%), #fbfcfd;
+      }
+      .msg { display: flex; gap: 10px; margin-bottom: 20px; }
+      .msg.user { flex-direction: row-reverse; }
+      .avatar {
+        width: 28px; height: 28px; flex: 0 0 28px; border-radius: 7px;
+        display: grid; place-items: center; font-size: 12px;
+      }
+      .avatar.user-a { background: #e7ebef; color: #4b5b6b; }
+      .avatar.agent-a { background: #e2f1ef; color: #0f766e; }
+      .bubble {
+        max-width: 78%; padding: 12px 14px; border: 1px solid #dde3e9;
+        border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,.05);
+      }
+      .user .bubble { border-color: #d4dbe2; background: #f6f8fa; }
+      .agent .bubble { border-color: #cfe3df; }
+      .meta {
+        margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;
+        gap: 18px; color: #9aa5b1; font-size: 10.5px;
+      }
+      .meta span:first-child { color: #526172; font-weight: 700; }
+      .bubble p { margin: 0; color: #26333f; font-size: 13px; line-height: 1.7; white-space: pre-wrap; }
+      .insights {
+        margin-top: 12px; padding-top: 10px; border-top: 1px solid #e9edf1;
+        display: flex; flex-wrap: wrap; gap: 12px; color: #5c6b7a; font-size: 10.5px;
+      }
+      .decision {
+        min-height: 58px; padding: 11px 16px; border-top: 1px solid var(--line);
+        display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+      }
+      .decision > span { margin-right: auto; color: #6c7987; font-size: 11px; }
+      .stats {
+        padding: 12px 13px 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      .stat {
+        min-height: 70px; padding: 10px; border: 1px solid #e0e5ea; border-radius: 8px;
+        display: flex; flex-direction: column; justify-content: center;
+      }
+      .stat span { color: #7d8996; font-size: 10px; }
+      .stat strong { margin: 3px 0 1px; color: #223140; font-size: 17px; }
+      .stat small { color: #9aa5b1; font-size: 9.5px; }
+      .tabs {
+        padding: 10px 13px 0; display: flex; gap: 4px; border-bottom: 1px solid var(--line);
+        background: #fafbfc;
+      }
+      .tab {
+        height: 30px; padding: 0 10px; border: 0; border-bottom: 2px solid transparent;
+        background: transparent; color: #7b8794; font-size: 11px; font-weight: 620;
+      }
+      .tab.active { border-bottom-color: #365f88; color: #284f75; }
+      .inspector { flex: 1; overflow: auto; padding: 13px; background: #fafbfc; }
+      .trace {
+        width: 100%; padding: 9px; border: 1px solid #dfe4e9; border-radius: 8px;
+        background: #fff; text-align: left; display: grid; grid-template-columns: 26px 1fr;
+        gap: 0 8px; margin-bottom: 7px;
+      }
+      .trace-icon {
+        width: 26px; height: 26px; border-radius: 7px; background: #eef4f9;
+        color: #345d85; display: grid; place-items: center; font-size: 11px;
+      }
+      .trace-main { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .trace-title { font-size: 11.5px; font-weight: 650; color: #17212b; }
+      .trace-time { color: #84909c; font-size: 10px; }
+      .json {
+        grid-column: 1 / -1; max-height: 145px; overflow: auto; margin: 8px 0 0;
+        padding: 7px 8px; border: 1px solid #e7ebef; border-radius: 6px;
+        background: #f8fafb; color: #53606d; font-family: Consolas, monospace;
+        font-size: 9.5px; line-height: 1.45; white-space: pre-wrap; word-break: break-word;
+      }
+      .benchmark {
+        margin-top: 13px; padding: 11px; border: 1px solid #e0e5ea;
+        border-radius: 8px; background: #fff;
+      }
+      .benchmark-head {
+        display: flex; align-items: center; justify-content: space-between;
+        color: #536171; font-size: 10.5px; font-weight: 700;
+      }
+      .benchmark-head span:last-child { color: #0f766e; font-size: 9.5px; }
+      .progress { height: 7px; margin-top: 11px; overflow: hidden; border-radius: 4px; background: #edf0f3; }
+      .progress span { display: block; height: 100%; background: #2f8c7d; }
+      .bench-foot {
+        margin-top: 6px; display: flex; justify-content: space-between; color: #8994a0; font-size: 9.5px;
+      }
+      .empty {
+        flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: #98a2ad; font-size: 12px;
+      }
+      .toast {
+        position: fixed; right: 18px; bottom: 18px; padding: 10px 12px; border-radius: 8px;
+        border: 1px solid #f1b8b2; background: #fff3f1; color: #98291f; font-size: 11px;
+        box-shadow: 0 8px 26px rgba(16,24,40,.16);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      const categoryLabel = {
+        network_pairing: "配网问题", device_fault: "设备故障", order_after_sales: "订单售后",
+        refund: "退款", account_security: "账号安全", complaint: "投诉建议", other: "其他"
+      };
+      const statusLabel = {
+        CREATED: "已创建", PARSING: "理解中", PARSED: "已理解", PROCESSING: "处理中",
+        DRAFTED: "已起草", REVIEWING: "质检中", APPROVED: "已通过", REPLIED: "已回复",
+        CLOSED: "已关闭", NEED_HUMAN: "待人工", FAILED: "失败", RETRYING: "重试中", REJECTED: "已拒绝"
+      };
+      const actionLabel = {
+        auto_reply: "自动回复", human_review: "转人工", retry: "重试",
+        reject: "拒绝", auto_close: "自动关闭"
+      };
+      const stepLabel = {
+        understand_agent: "理解 Agent", process_agent: "处理 Agent",
+        respond_agent: "回复 Agent", qc_agent: "质检 Agent", workflow: "工作流"
+      };
+      const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+      const fmtTime = (value) => new Intl.DateTimeFormat("zh-CN", {
+        month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"
+      }).format(new Date(value));
+      const safeParse = (value) => {
+        try { return JSON.parse(value ?? "{}"); } catch { return {}; }
+      };
+      const statusClass = (status) =>
+        status === "CLOSED" ? "closed-s" : status === "NEED_HUMAN" ? "human-s" : "active-s";
+
+      let DATA;
+      let selectedId = null;
+      let activePane = "trace";
+      const expanded = new Set();
+
+      function ticketById(id) { return DATA.tickets.find((item) => item.id === id); }
+      function eventsFor(id) {
+        return (DATA.events[id] || []).map((item) => ({ ...item, payload: safeParse(item.payload_json) }));
+      }
+      function tracesFor(id) {
+        return (DATA.traces[id] || []).map((item) => ({
+          ...item,
+          input: safeParse(item.input_json),
+          output: safeParse(item.output_json),
+        }));
+      }
+      function riskClass(level) {
+        if (level === "high" || level === "critical") return "color:#b42318";
+        if (level === "medium") return "color:#b45309";
+        return "color:#0f766e";
+      }
+
+      function render() {
+        const selected = selectedId ? ticketById(selectedId) : null;
+        const traces = selected ? tracesFor(selected.id) : [];
+        const events = selected ? eventsFor(selected.id) : [];
+        const benchmarkRate = DATA.benchmark?.assertion_pass_rate ?? 1;
+        const benchmarkPassed = DATA.benchmark?.passed_assertions ?? 36;
+        const benchmarkTotal = DATA.benchmark?.total_assertions ?? 36;
+
+        document.getElementById("app").innerHTML = `
+          <header class="topbar">
+            <div class="brand">
+              <div class="mark">◆</div>
+              <div><strong>智能工单 Agent</strong><small>Quality Workbench</small></div>
+            </div>
+            <div class="top-status">
+              <span class="dot"></span><span>后端在线</span><span class="sep"></span>
+              <span>local-rule-engine</span><span class="sep"></span><span>SQLite</span>
+            </div>
+          </header>
+          <main class="workspace">
+            <aside class="panel">
+              <div class="heading">
+                <div><span class="eyebrow">INBOX</span><h1>工单队列</h1></div>
+                <span class="count">${DATA.tickets.length}</span>
+              </div>
+              <div class="composer">
+                <textarea id="draft" placeholder="描述一个用户问题，例如：AF205 配网失败，提示 E104"></textarea>
+                <div class="composer-foot">
+                  <span>演示版数据快照</span>
+                  <button class="btn" id="run">运行 Agent</button>
+                </div>
+              </div>
+              <div class="queue">
+                ${DATA.tickets.map((ticket) => `
+                  <button class="ticket ${selectedId === ticket.id ? "active" : ""}" data-id="${ticket.id}">
+                    <span class="ticket-top">
+                      <span class="number">#${ticket.id}</span>
+                      <span class="status ${statusClass(ticket.status)}">${statusLabel[ticket.status] || ticket.status}</span>
+                    </span>
+                    <span class="ticket-title">${esc(ticket.raw_content)}</span>
+                    <span class="ticket-bottom">
+                      <span>${categoryLabel[ticket.category] || "未分类"}</span>
+                      <span>${ticket.priority || "—"}</span>
+                      <span>${ticket.assigned_group || "未路由"}</span>
+                      <span>${fmtTime(ticket.updated_at)}</span>
+                    </span>
+                  </button>
+                `).join("")}
+              </div>
+            </aside>
+
+            <section class="panel">
+              <div class="heading compact">
+                <div><span class="eyebrow">CONVERSATION</span><h2>工单处理</h2></div>
+                ${selected ? `<span class="status ${statusClass(selected.status)}">${statusLabel[selected.status]}</span>` : ""}
+              </div>
+              ${selected ? `
+                <div class="chat">
+                  <div class="msg user">
+                    <div class="avatar user-a">人</div>
+                    <div class="bubble">
+                      <div class="meta"><span>用户</span><span>${fmtTime(selected.created_at)}</span></div>
+                      <p>${esc(selected.raw_content)}</p>
+                    </div>
+                  </div>
+                  <div class="msg agent">
+                    <div class="avatar agent-a">AI</div>
+                    <div class="bubble">
+                      <div class="meta"><span>Agent 处理结果</span><span>${actionLabel[selected.final_action] || "—"}</span></div>
+                      <p>${esc(selected.reply_draft || "尚未生成回复")}</p>
+                      <div class="insights">
+                        <span>● ${categoryLabel[selected.category] || "未分类"}</span>
+                        <span>◉ ${selected.priority || "—"}</span>
+                        <span>⌁ ${selected.assigned_group || "未路由"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="decision">
+                  <span>${selected.status === "NEED_HUMAN" ? "此工单需要人工确认" : "当前工单已由 Agent 完成处理"}</span>
+                  ${selected.status === "NEED_HUMAN" ? `
+                    <button class="btn light">拒绝</button>
+                    <button class="btn light">直接关闭</button>
+                    <button class="btn">确认处理</button>
+                  ` : ""}
+                </div>
+              ` : `<div class="empty">选择一条工单查看处理链路</div>`}
+            </section>
+
+            <aside class="panel">
+              <div class="heading compact">
+                <div><span class="eyebrow">INSPECTOR</span><h2>质量与链路</h2></div>
+              </div>
+              <div class="stats">
+                <div class="stat"><span>Agent 步骤</span><strong>${traces.length}</strong><small>Trace 记录</small></div>
+                <div class="stat"><span>风险</span><strong style="${riskClass(selected?.risk_level)}">${selected?.risk_level?.toUpperCase() || "—"}</strong><small>自动判定</small></div>
+                <div class="stat"><span>评测</span><strong>${Math.round(benchmarkRate * 100)}%</strong><small>${DATA.benchmark?.passed_cases || 9}/${DATA.benchmark?.total_cases || 9} 用例</small></div>
+                <div class="stat"><span>健康状态</span><strong>OK</strong><small>rule_based</small></div>
+              </div>
+              <div class="tabs">
+                <button class="tab ${activePane === "trace" ? "active" : ""}" data-tab="trace">Agent Trace</button>
+                <button class="tab ${activePane === "events" ? "active" : ""}" data-tab="events">状态事件</button>
+              </div>
+              <div class="inspector">
+                ${selected ? (activePane === "trace" ? traces.map((trace) => `
+                  <button class="trace" data-trace="${trace.id}">
+                    <span class="trace-icon">AI</span>
+                    <span class="trace-main">
+                      <span class="trace-title">${stepLabel[trace.step_name] || trace.step_name}</span>
+                      <span class="trace-time">${trace.latency_ms}ms ▸</span>
+                    </span>
+                    ${expanded.has(trace.id) ? `<pre class="json">${esc(JSON.stringify({ input: trace.input, output: trace.output }, null, 2))}</pre>` : ""}
+                  </button>
+                `).join("") : events.map((event) => `
+                  <div class="trace">
+                    <span class="trace-icon">→</span>
+                    <span class="trace-main">
+                      <span class="trace-title">${event.from_status ? `${event.from_status} → ${event.to_status}` : event.to_status}</span>
+                      <span class="trace-time">${fmtTime(event.created_at)}</span>
+                    </span>
+                  </div>
+                `).join("")) : `<div class="empty" style="min-height:180px">选择工单后查看处理链路</div>`}
+
+                <div class="benchmark">
+                  <div class="benchmark-head"><span>◆ Benchmark</span><span>已就绪</span></div>
+                  <div class="progress"><span style="width:${benchmarkRate * 100}%"></span></div>
+                  <div class="bench-foot">
+                    <span>断言 ${benchmarkPassed}/${benchmarkTotal}</span>
+                    <span>${Math.round(benchmarkRate * 100)}%</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </main>
+        `;
+
+        document.querySelectorAll(".ticket").forEach((element) => {
+          element.addEventListener("click", () => {
+            selectedId = Number(element.dataset.id);
+            expanded.clear();
+            render();
+          });
+        });
+        document.querySelectorAll(".tab").forEach((element) => {
+          element.addEventListener("click", () => {
+            activePane = element.dataset.tab;
+            render();
+          });
+        });
+        document.querySelectorAll(".trace[data-trace]").forEach((element) => {
+          element.addEventListener("click", () => {
+            const id = Number(element.dataset.trace);
+            expanded.has(id) ? expanded.delete(id) : expanded.add(id);
+            render();
+          });
+        });
+        const run = document.getElementById("run");
+        if (run) {
+          run.addEventListener("click", () => {
+            const text = document.getElementById("draft").value.trim();
+            if (!text) {
+              alert("请先输入一个工单问题");
+              return;
+            }
+            alert("这是数据快照演示版。启动 FastAPI 后端后，新工单会实时运行并写入数据库。");
+          });
+        }
+      }
+
+      fetch("./public/demo-data.json")
+        .then((response) => response.json())
+        .then((data) => {
+          DATA = data;
+          DATA.benchmark = {
+            total_cases: 9, passed_cases: 9, total_assertions: 36,
+            passed_assertions: 36, case_pass_rate: 1.0, assertion_pass_rate: 1.0
+          };
+          selectedId = DATA.tickets[0]?.id ?? null;
+          render();
+        })
+        .catch(() => {
+          document.getElementById("app").innerHTML =
+            '<div class="toast">未能加载演示数据，请确认从 frontend 目录打开 standalone.html。</div>';
+        });
+    </script>
+  </body>
+</html>
